@@ -1,0 +1,71 @@
+services:
+
+  db:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db_test:
+    image: postgres:latest
+    container_name: test
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test_db
+    ports:
+      - "5433:5432"
+    restart: always
+
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      uvicorn lib_api.app:app --host 0.0.0.0 --port 8000
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    logging:
+      driver: loki
+      options:
+        loki-url: http://host.docker.internal:3100/loki/api/v1/push
+        max-file: "3"
+        max-size: "5 MB"
+
+#  grafana:
+#    container_name: grafana
+#    image: grafana/grafana:9.3.8
+#    environment:
+#      GF_AUTH_ANONYMOUS_ENABLED: "true"
+#      GF_AUTH_ANONYMOUS_ORG_NAME: "Main Org."
+#      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+#    ports:
+#      - "3000:3000"
+#
+#  loki:
+#    container_name: loki
+#    image: grafana/loki:2.9.0
+#    ports:
+#      - "3100:3100"
+
+volumes:
+  postgres_data:
