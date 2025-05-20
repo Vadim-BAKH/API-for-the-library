@@ -9,9 +9,11 @@ PostgreSQL с помощью SQLAlchemy и asyncpg, создаёт движки.
 from os import getenv
 from typing import AsyncGenerator
 
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 
+load_dotenv()
 POSTGRES_USER = getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
 DB_PORT = getenv("DB_PORT")

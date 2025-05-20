@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
-from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination.ext.sqlalchemy import apaginate
 from pydantic import SecretStr
 from sqlalchemy import asc, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -194,7 +194,7 @@ async def list_readers(
         Page[ReaderResponse]: Страница с данными читателей.
     """
     query = select(Reader).order_by(asc(Reader.name))
-    return await paginate(db, query, params)
+    return await apaginate(db, query, params)
 
 
 @router.post(
@@ -234,7 +234,7 @@ async def list_books(
         Page[BookResponse]: Страница с данными книг.
     """
     query = select(Book).order_by(desc(Book.id))
-    return await paginate(db, query, params)
+    return await apaginate(db, query, params)
 
 
 @router.get(

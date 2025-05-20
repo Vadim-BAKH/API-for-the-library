@@ -2,12 +2,12 @@
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from lib_api.business_models.library_models.models_lib import ReaderBook
 from lib_api.business_models.library_models.reader_crud.reader_by_id import \
     get_reader_by_id
-from lib_api.schemas.reader_book_seeialization import \
-    BorrowedBooksListResponse
+from lib_api.schemas.reader_book_seeialization import BorrowedBooksListResponse
 
 
 async def get_active_borrows_by_reader(
@@ -22,7 +22,7 @@ async def get_active_borrows_by_reader(
         BorrowedBooksListResponse: Список активных книг у читателя.
     """
     reader = await get_reader_by_id(reader_id=reader_id, db=db)
-    stmt = select(ReaderBook).where(
+    stmt = select(ReaderBook).options(joinedload(ReaderBook.book)).where(
         and_(
             ReaderBook.reader_id == reader.id,
             ReaderBook.return_date.is_(None)
