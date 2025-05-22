@@ -205,7 +205,59 @@ RESTful API для базового управления библиотечны�
 
 ### Реализация миграций с Alembic.
 
-Данный вопрос пока не решен. Предварительно сделан alembic init alembic и внесены данные в env.py
+Для реализации работы с миграциями удалил предыдущую базу bash: **docker compose down -v**.
+Инициировал alembic с асинхронным движком bash: **alembic init -t async migrations**.
+Внёс соответствующие правки в alembic.ini:
+             
+             - script_location = migrations;
+             
+             - file_template = %%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s
+             
+             - sqlalchemy.url =
+             
+Внес правки в env.py:
+
+![image](https://github.com/user-attachments/assets/0ec99cbc-5014-432e-9506-2d6d06be69e2)
+![image](https://github.com/user-attachments/assets/c1a90a99-101d-4942-902a-f8b6e10a11ee)
+В docker-compose.yml добавил в app необходимые 
+
+                   volumes:
+                   
+                      - ./alembic.ini:/app/alembic.ini
+                      
+                      - ./migrations:/app/migrations
+                      
+В app.py закоментировал создание таблиц.
+
+Запускаем приложение:   **docker compose up --build -d**.
+
+На административном сайте видим, что таблиц нет.
+![2025-05-22_19-51-22](https://github.com/user-attachments/assets/ecac0034-9a4f-46e2-8062-a8589d14658b)
+
+
+В докуметации так же ошибка.
+![2025-05-22_19-52-36](https://github.com/user-attachments/assets/aadce55e-1ec9-4c05-b567-a5d6851f1ef2)
+
+Входим в контейнер app и делаем первую миграцию.
+![image](https://github.com/user-attachments/assets/d91fc4e7-54c1-4777-8357-33c16d665164)
+
+Видим, что появились таблицы, смотрим на колонки **book**, так как будем добавлять.
+![2025-05-22_19-58-18](https://github.com/user-attachments/assets/d85629bc-b9b5-416c-87a4-927092d27187)
+
+Остановил контейнер app bash: **docker compose stop app**.
+
+Добавил колонку **dscription** в модель **book** и соответствующее поле в модели сериализации.
+
+Собираем app bash: **docker compose up --build -d app**.
+
+Делаем миграцию в app.
+![image](https://github.com/user-attachments/assets/373dda0d-722b-4555-84d8-9a8d43c92b2b)
+![image](https://github.com/user-attachments/assets/e60c4354-07ce-4d99-b517-305b2b2f1d1d)
+
+Проверяем, что колонка добавилась к модели.
+![2025-05-22_20-08-36](https://github.com/user-attachments/assets/c278deb6-30e9-47a5-8347-325b206772cd)
+![2025-05-22_20-10-54](https://github.com/user-attachments/assets/919f09a8-7b47-469e-a4e0-173e14e6a58c)
+
 
 
 ### Реализация тестирования с Pytest.
