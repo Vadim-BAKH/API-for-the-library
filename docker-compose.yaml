@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres:latest
     container_name: postgres
@@ -29,13 +28,43 @@ services:
       - "5433:5432"
     restart: always
 
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
   app:
     container_name: app
     build:
       context: .
       dockerfile: Dockerfile
-    command: >
-      uvicorn lib_api.app:app --host 0.0.0.0 --port 8000
+    command:
+      - /bin/bash
+      - -c
+      - |
+        alembic upgrade head
+        uvicorn lib_api.app:app --host 0.0.0.0 --port 8000
     restart: always
     depends_on:
       db:
@@ -44,6 +73,9 @@ services:
       - .env
     ports:
       - "8000:8000"
+    volumes:
+      - ./alembic.ini:/app/alembic.ini
+      - ./migrations:/app/migrations
     logging:
       driver: loki
       options:
@@ -69,3 +101,4 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin_data:

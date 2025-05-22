@@ -20,9 +20,9 @@ async def database_life_cycle(api: FastAPI) -> AsyncIterator:
     Устанавливает и закрывает соединение.
     Создает таблицы моделей, если их нет.
     """
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        logger.info(f"Tables are successfully created with {api}")
+    # async with async_engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
+    #     logger.info(f"Tables are successfully created with {api}")
     yield
     await async_engine.dispose()
 

@@ -37,9 +37,9 @@ class Book(BaseModel):
     copies_count: Mapped[int] = mapped_column(
         Integer, server_default=text("1"), nullable=False
     )
-    # description: Mapped[str | None] = mapped_column(
-    #     String(500), nullable=True
-    # )
+    description: Mapped[str | None] = mapped_column(
+        String(500), nullable=True
+    )
 
     __table_args__ = (
         CheckConstraint(

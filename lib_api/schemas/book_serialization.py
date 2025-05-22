@@ -13,6 +13,7 @@ class BookBase(BaseModel):
     publication_year: Optional[int] = None
     isbn: Optional[str] = Field(None, max_length=20)
     copies_count: conint(ge=0) = Field(default=1)
+    description: Optional[str] = Field(None, max_length=500)
 
 
 class BookCreate(BookBase):
@@ -27,6 +28,7 @@ class BookUpdate(BaseModel):
     publication_year: Optional[int] = None
     isbn: Optional[str] = Field(None, max_length=20)
     copies_count: Optional[conint(ge=0)] = None
+    description: Optional[str] = Field(None, max_length=500)
 
 
 class BookResponse(BookBase):
