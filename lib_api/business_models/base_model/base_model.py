@@ -14,8 +14,6 @@ class BaseModel(Base):
 
     Attributes:
         id: Уникальный идентификатор записи (первичный ключ).
-        created_at: Дата и время создания записи в UTC.
-        updated_at: Дата и время последнего обновления записи в UTC.
     """
 
     __abstract__ = True
